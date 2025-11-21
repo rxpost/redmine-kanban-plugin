@@ -53,7 +53,7 @@ class JournalController < ApplicationController
       .where("notes IS NOT NULL")
       .where("notes <> ''")
       .order(created_on: :desc)
-      .limit(Constants::MAX_NOTES)
+      .limit(Kanban::Constants::MAX_NOTES)
 
     # Adding string for recent history
     if !notes.blank? then
@@ -61,7 +61,7 @@ class JournalController < ApplicationController
     end
 
     # Building html of notes
-    if Constants::ORDER_NOTES == "ASC" then
+    if Kanban::Constants::ORDER_NOTES == "ASC" then
       notes.reverse_each {|note|
         notes_string += note_to_html(issue_id, note)
       }
@@ -89,8 +89,8 @@ class JournalController < ApplicationController
   # Shorten strings
   #
   def trim_notes(notes)
-    str = notes.byteslice(0, Constants::MAX_NOTES_BYTESIZE).scrub('')
-    if notes.bytesize >= Constants::MAX_NOTES_BYTESIZE then
+    str = notes.byteslice(0, Kanban::Constants::MAX_NOTES_BYTESIZE).scrub('')
+    if notes.bytesize >= Kanban::Constants::MAX_NOTES_BYTESIZE then
       str += "..."
     end
     return str
