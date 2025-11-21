@@ -1,7 +1,7 @@
 #
 # Constant definition
 #
-class Constants < ActiveRecord::Base
+class Constants
 
   # Limit selection strategy
   # 0: No Limit
