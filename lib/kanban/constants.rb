@@ -2,7 +2,7 @@
 # Constant definition
 #
 module Kanban
-  class Constants
+  module Constants
 
     # Limit selection strategy
     # 0: No Limit
