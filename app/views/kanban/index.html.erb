@@ -12,7 +12,7 @@
   var login_user_id = "<%= @current_user.id %>";
   var label_recent_history_is_here = "<%= I18n.t(:kanban_label_recent_history_is_here) %>";
   var label_add_notes = "<%= I18n.t(:kanban_label_add_notes) %>";
-  var option_display_comment_dialog_when_drop = "<%= Constants::DISPLAY_COMMENT_DIALOG_WHEN_DROP %>";
+  var option_display_comment_dialog_when_drop = "<%= Kanban::Constants::DISPLAY_COMMENT_DIALOG_WHEN_DROP %>";
   window.onload = function(){    
     $(window).scrollTop(<%= params[:scroll_top] %>);    
   }
@@ -29,7 +29,7 @@
   <% end %>
 </div>
 <!-- H2 title -->
-<h2><% if Constants::DISPLAY_USER_AVATOR == 1 then %><%= avatar(@user, :size => "24") %><% end %><%= @user.name %><%= I18n.t(:kanban_label_title) %></h2>
+<h2><% if Kanban::Constants::DISPLAY_USER_AVATAR == 1 then %><%= avatar(@user, :size => "24") %><% end %><%= @user.name %><%= I18n.t(:kanban_label_title) %></h2>
 <!-- Form for filters -->
 <form id="form1" action="" method="GET">
 <!-- This is the part that opens and closes -->
@@ -265,7 +265,7 @@
                 <p style="writing-mode: vertical-rl; white-space: nowrap;"><%= @user_and_group_names_hash[uid] %></p>
               <% else %>
                 <!-- When user -->
-                <% if Constants::DISPLAY_USER_AVATOR == 1 then %><%= avatar(@selectable_users.find(uid), :size => "16") %>&nbsp;<% end %>
+                <% if Kanban::Constants::DISPLAY_USER_AVATAR == 1 then %><%= avatar(@selectable_users.find(uid), :size => "16") %>&nbsp;<% end %>
                 <p style="writing-mode: vertical-rl; white-space: nowrap;"><%= @user_and_group_names_hash[uid] %></p>
               <% end %>
             <% else %>
@@ -275,7 +275,7 @@
           <!-- Cols -->
           <% @status_fields_array.each {|status_id| %>
             <td id="field-<%= status_id %>-<%= uid %>" style="vertical-align: top;">
-              <% if status_id == Constants::WIP_COUNT_STATUS_FIELD %>
+              <% if status_id == Kanban::Constants::WIP_COUNT_STATUS_FIELD %>
                 <!-- Display exceeded WIP warning message -->
                 <% if @wip_hash[uid].to_i > @wip_max.to_i then %>
                   <div class="flash error" id="wip_error-<%= uid %>" style="margin: 8px 4px 8px 4px;"><%= I18n.t(:kanban_label_wip_limit_exceeded) %></div>
@@ -318,7 +318,7 @@
   <% end %>
 <% } %>
 <!-- Field ID for display WIP warning -->
-<p id="wip-field" style="display: none;"><%= Constants::WIP_COUNT_STATUS_FIELD %></p>
+<p id="wip-field" style="display: none;"><%= Kanban::Constants::WIP_COUNT_STATUS_FIELD %></p>
 <!-- Hidden values for saving issue status -->
 <input type="hidden" id="save_card_id">
 <input type="hidden" id="save_from_field_id">

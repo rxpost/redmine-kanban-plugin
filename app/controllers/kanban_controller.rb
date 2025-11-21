@@ -195,8 +195,8 @@ class KanbanController < ApplicationController
       .where("updated_on >= '" + updated_from + "'")
       .where(get_issues_visibility_condition)
 
-    if Constants::SELECT_LIMIT_STRATEGY == 1 then
-      issues_for_projects = issues_for_projects.limit(Constants::SELECT_LIMIT)
+    if Kanban::Constants::SELECT_LIMIT_STRATEGY == 1 then
+      issues_for_projects = issues_for_projects.limit(Kanban::Constants::SELECT_LIMIT)
     end
 
     # Unique project IDs
@@ -237,9 +237,9 @@ class KanbanController < ApplicationController
         if @tracker_id != "unspecified" then
           issues = issues.where(tracker_id: @tracker_id)
         end
-        @issues_hash[status_id] = issues.order(updated_on: "DESC").limit(Constants::SELECT_LIMIT)
+        @issues_hash[status_id] = issues.order(updated_on: "DESC").limit(Kanban::Constants::SELECT_LIMIT)
         # Count WIP issues
-        if status_id == Constants::WIP_COUNT_STATUS_FIELD then
+        if status_id == Kanban::Constants::WIP_COUNT_STATUS_FIELD then
           @user_id_array.each {|uid|
             wip_counter = 0
             @issues_hash[status_id].each {|issue|
@@ -269,12 +269,12 @@ class KanbanController < ApplicationController
         if @tracker_id != "unspecified" then
           issues = issues.where(tracker_id: @tracker_id)
         end
-        @issues_hash[status_id] = issues.order(updated_on: "DESC").limit(Constants::SELECT_LIMIT)
+        @issues_hash[status_id] = issues.order(updated_on: "DESC").limit(Kanban::Constants::SELECT_LIMIT)
       end
     }
 
     # Hide user without issues
-    if Constants::DISPLAY_USER_WITHOUT_ISSUES != 1 then
+    if Kanban::Constants::DISPLAY_USER_WITHOUT_ISSUES != 1 then
       remove_user_without_issues
     end    
   end
@@ -463,12 +463,12 @@ class KanbanController < ApplicationController
   def initialize_params
     # Days since upadated date
     if @updated_within.nil? || (@updated_within.to_i == 0 && @updated_within != "unspecified") then
-      @updated_within = Constants::DEFAULT_VALUE_UPDATED_WITHIN
+      @updated_within = Kanban::Constants::DEFAULT_VALUE_UPDATED_WITHIN
     end
     
     # Days since closed date
     if @done_within.nil? || (@done_within.to_i == 0 && @done_within != "unspecified") then
-      @done_within = Constants::DEFAULT_VALUE_DONE_WITHIN
+      @done_within = Kanban::Constants::DEFAULT_VALUE_DONE_WITHIN
     end
 
     # Due date
@@ -524,22 +524,22 @@ class KanbanController < ApplicationController
       }
     else
       # Default
-      @status_fields_array = Constants::DEFAULT_STATUS_FIELD_VALUE_ARRAY
+      @status_fields_array = Kanban::Constants::DEFAULT_STATUS_FIELD_VALUE_ARRAY
     end
 
     # Max number of WIP issue (default)
     if @wip_max.nil? || @wip_max.to_i == 0 then
-      @wip_max = Constants::DEFAULT_VALUE_WIP_MAX
+      @wip_max = Kanban::Constants::DEFAULT_VALUE_WIP_MAX
     end
 
     # Card size (default)
     if @card_size.nil? || (@card_size != "normal_days_left" && @card_size != "normal_estimated_hours" && @card_size != "normal_spent_hours" && @card_size != "small") then
-      @card_size = Constants::DEFAULT_CARD_SIZE
+      @card_size = Kanban::Constants::DEFAULT_CARD_SIZE
     end
 
     # Show ancestors (default)
     if @show_ancestors.nil?  then
-      @show_ancestors = Constants::DEFAULT_SHOW_ANCESTORS
+      @show_ancestors = Kanban::Constants::DEFAULT_SHOW_ANCESTORS
     end
   end
 

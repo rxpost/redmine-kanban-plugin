@@ -43,7 +43,7 @@
     @done_issue_statuses_array = IssueStatus.where(is_closed: 1).pluck(:id)
     
     # Array of status ID for display
-    @status_fields_array = Constants::DEFAULT_STATUS_FIELD_VALUE_ARRAY
+    @status_fields_array = Kanban::Constants::DEFAULT_STATUS_FIELD_VALUE_ARRAY
 
     # Note: We keep all statuses in @status_fields_array to show columns
     # but will filter out done statuses from @issues_hash when setting is enabled
@@ -73,14 +73,14 @@
       if @done_issue_statuses_array.include?(status_id) == false then
         # Case not done status
         issues = Issue.where(assigned_to_id: @current_user).where(status: status_id)
-        @issues_hash[status_id] = issues.order(updated_on: "DESC").limit(Constants::SELECT_LIMIT)
+        @issues_hash[status_id] = issues.order(updated_on: "DESC").limit(Kanban::Constants::SELECT_LIMIT)
       else
         # Case done status - show empty array if hiding done issues
         if settings[:hide_done_issues] == '1' then
           @issues_hash[status_id] = []
         else
           issues = Issue.where(assigned_to_id: @current_user).where(status: status_id)
-          @issues_hash[status_id] = issues.order(updated_on: "DESC").limit(Constants::SELECT_LIMIT)
+          @issues_hash[status_id] = issues.order(updated_on: "DESC").limit(Kanban::Constants::SELECT_LIMIT)
         end
       end
     }
@@ -122,9 +122,9 @@
                 <% project_issues.each do |issue| %>
                   <% 
                     # Determine CSS class based on priority
-                    priority_class = if issue.priority_id >= Constants::DEFAULT_HIGH_PRIORITY_ISSUE_ID
+                    priority_class = if issue.priority_id >= Kanban::Constants::DEFAULT_HIGH_PRIORITY_ISSUE_ID
                                       'my-issue-card-high-priority'
-                                    elsif issue.priority_id == Constants::DEFAULT_NORMAL_PRIORITY_ISSUE_ID
+                                    elsif issue.priority_id == Kanban::Constants::DEFAULT_NORMAL_PRIORITY_ISSUE_ID
                                       'my-issue-card'
                                     else
                                       'my-issue-card-low-priority'
