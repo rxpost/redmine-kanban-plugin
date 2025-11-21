@@ -48,7 +48,7 @@ module Kanban
     # Enable to display user's avatar at user lane
     # 0: None
     # 1: Display avatar
-    DISPLAY_USER_AVATOR = 1
+    DISPLAY_USER_AVATAR = 1
 
     # Enable hide user without issues
     # 0: Hide

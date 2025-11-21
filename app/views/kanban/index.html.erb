@@ -29,7 +29,7 @@
   <% end %>
 </div>
 <!-- H2 title -->
-<h2><% if Kanban::Constants::DISPLAY_USER_AVATOR == 1 then %><%= avatar(@user, :size => "24") %><% end %><%= @user.name %><%= I18n.t(:kanban_label_title) %></h2>
+<h2><% if Kanban::Constants::DISPLAY_USER_AVATAR == 1 then %><%= avatar(@user, :size => "24") %><% end %><%= @user.name %><%= I18n.t(:kanban_label_title) %></h2>
 <!-- Form for filters -->
 <form id="form1" action="" method="GET">
 <!-- This is the part that opens and closes -->
@@ -265,7 +265,7 @@
                 <p style="writing-mode: vertical-rl; white-space: nowrap;"><%= @user_and_group_names_hash[uid] %></p>
               <% else %>
                 <!-- When user -->
-                <% if Kanban::Constants::DISPLAY_USER_AVATOR == 1 then %><%= avatar(@selectable_users.find(uid), :size => "16") %>&nbsp;<% end %>
+                <% if Kanban::Constants::DISPLAY_USER_AVATAR == 1 then %><%= avatar(@selectable_users.find(uid), :size => "16") %>&nbsp;<% end %>
                 <p style="writing-mode: vertical-rl; white-space: nowrap;"><%= @user_and_group_names_hash[uid] %></p>
               <% end %>
             <% else %>
