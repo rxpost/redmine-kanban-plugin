@@ -51,12 +51,12 @@ It is possible to show\hide the issue parent from the filter section.
 
 ## Install
 
-1. Move to plugins folder.
+1. Move to `plugins` folder.
 <pre>
 git clone https://github.com/happy-se-life/kanban.git
 </pre>
 
-2. Edit lib/kanban/constants.rb for your environment.
+2. Edit `lib/kanban/constants.rb` for your environment.
 
 3. Restart redmine.
 
