@@ -31,13 +31,16 @@ class KanbanController < ApplicationController
     else
       @user = User.find(@user_id.to_i)
     end
-  
+
     # Get current project
     if @project_id.blank? then
       @project = nil
     else
       @project = Project.find(@project_id)
     end
+
+    # Group-by mode: "user" (default) or "project"
+    @group_by = params[:group_by] || session.dig(:kanban, "group_by") || "user"
     
     # Get users for assignee filetr
     if @project_all == "1" then
@@ -274,9 +277,21 @@ class KanbanController < ApplicationController
     }
 
     # Hide user without issues
-    if Kanban::Constants::DISPLAY_USER_WITHOUT_ISSUES != 1 then
+    if @group_by == "user" && Kanban::Constants::DISPLAY_USER_WITHOUT_ISSUES != 1 then
       remove_user_without_issues
-    end    
+    end
+
+    # Build project swimlanes when grouping by project
+    if @group_by == "project"
+      @swimlane_project_ids = unique_project_id_array.sort_by { |pid|
+        Project.find(pid).name
+      }
+      @swimlane_project_ids.reverse! if @group_order == "desc"
+      @project_names_hash = {}
+      @swimlane_project_ids.each { |pid|
+        @project_names_hash[pid] = Project.find(pid).name
+      }
+    end
   end
   
   private
@@ -351,6 +366,8 @@ class KanbanController < ApplicationController
     session_hash["wip_max"] = @wip_max
     session_hash["card_size"] = @card_size
     session_hash["show_ancestors"] = @show_ancestors
+    session_hash["group_by"] = @group_by
+    session_hash["group_order"] = @group_order
     session[:kanban] = session_hash
   end
 
@@ -454,6 +471,20 @@ class KanbanController < ApplicationController
     else
       @show_ancestors = params[:show_ancestors]
     end
+
+    # Group by
+    if !session_hash.blank? && params[:group_by].blank?
+      @group_by = session_hash["group_by"]
+    else
+      @group_by = params[:group_by]
+    end
+
+    # Group order
+    if !session_hash.blank? && params[:group_order].blank?
+      @group_order = session_hash["group_order"]
+    else
+      @group_order = params[:group_order]
+    end
   end
 
   #
@@ -540,6 +571,16 @@ class KanbanController < ApplicationController
     # Show ancestors (default)
     if @show_ancestors.nil?  then
       @show_ancestors = Kanban::Constants::DEFAULT_SHOW_ANCESTORS
+    end
+
+    # Group by (default)
+    if @group_by.nil? || !["user", "project"].include?(@group_by)
+      @group_by = "user"
+    end
+
+    # Group order (default)
+    if @group_order.nil? || !["asc", "desc"].include?(@group_order)
+      @group_order = "asc"
     end
   end
 

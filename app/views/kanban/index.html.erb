@@ -29,7 +29,7 @@
   <% end %>
 </div>
 <!-- H2 title -->
-<h2><% if Kanban::Constants::DISPLAY_USER_AVATAR == 1 then %><%= avatar(@user, :size => "24") %><% end %><%= @user.name %><%= I18n.t(:kanban_label_title) %></h2>
+<h2><% if @user_id == "unspecified" %><%= I18n.t(:kanban_label_team_title) %><% else %><% if Kanban::Constants::DISPLAY_USER_AVATAR == 1 then %><%= avatar(@user, :size => "24") %><% end %><%= @user.name %><%= I18n.t(:kanban_label_title) %><% end %></h2>
 <!-- Form for filters -->
 <form id="form1" action="" method="GET">
 <!-- This is the part that opens and closes -->
@@ -200,7 +200,27 @@
             <%= check_box_tag :cb_ancestor, 1 %>
           <% end %>
           <%= hidden_field_tag :show_ancestors, @show_ancestors %>
-        </td>        
+        </td>
+      </tr>
+      <tr>
+        <td style="width: 100px">
+          <label><%= I18n.t(:kanban_label_group_by) %></label>
+        </td>
+        <td>
+          <select name="group_by">
+            <option value="user" <% if @group_by == "user" %> selected <% end %>><%= I18n.t(:kanban_label_group_by_user) %></option>
+            <option value="project" <% if @group_by == "project" %> selected <% end %>><%= I18n.t(:kanban_label_group_by_project) %></option>
+          </select>
+        </td>
+        <td style="width: 100px">
+          <label><%= I18n.t(:kanban_label_group_order) %></label>
+        </td>
+        <td>
+          <select name="group_order">
+            <option value="asc" <% if @group_order == "asc" %> selected <% end %>>A → Z</option>
+            <option value="desc" <% if @group_order == "desc" %> selected <% end %>>Z → A</option>
+          </select>
+        </td>
       </tr>
     </table>
   </div>
@@ -253,57 +273,76 @@
       </tr>
     </thead>
     <tbody>
-      <!-- User loop -->
-      <% @user_id_array.each{|uid| %>
-        <!-- Rows -->
-        <tr class="group">
-          <td>
-            <% if uid != nil then %>
-              <% if @group_id_array.include?(uid) then %>
-                <!-- When group -->
-                <img src="./images/group.png">
-                <p style="writing-mode: vertical-rl; white-space: nowrap;"><%= @user_and_group_names_hash[uid] %></p>
-              <% else %>
-                <!-- When user -->
-                <% if Kanban::Constants::DISPLAY_USER_AVATAR == 1 then %><%= avatar(@selectable_users.find(uid), :size => "16") %>&nbsp;<% end %>
-                <p style="writing-mode: vertical-rl; white-space: nowrap;"><%= @user_and_group_names_hash[uid] %></p>
-              <% end %>
-            <% else %>
-              <p style="writing-mode: vertical-rl; white-space: nowrap;">Not&nbsp;Assigned</p>
-            <% end %>
-          </td>
-          <!-- Cols -->
-          <% @status_fields_array.each {|status_id| %>
-            <td id="field-<%= status_id %>-<%= uid %>" style="vertical-align: top;">
-              <% if status_id == Kanban::Constants::WIP_COUNT_STATUS_FIELD %>
-                <!-- Display exceeded WIP warning message -->
-                <% if @wip_hash[uid].to_i > @wip_max.to_i then %>
-                  <div class="flash error" id="wip_error-<%= uid %>" style="margin: 8px 4px 8px 4px;"><%= I18n.t(:kanban_label_wip_limit_exceeded) %></div>
-                <% else %>
-                  <div class="flash error" id="wip_error-<%= uid %>" style="margin: 8px 4px 8px 4px; display: none;"><%= I18n.t(:kanban_label_wip_limit_exceeded) %></div>
-                <% end %>
-              <% end %>
-              <% @issues_hash[status_id].each {|issue| %>
-                <% if uid == issue.assigned_to_id then %>
-                  <% if @card_size == "small" then %>
-                    <!-- SMALL SIZE card -->
+      <% if @group_by == "project" %>
+        <!-- Project swimlanes -->
+        <% @swimlane_project_ids.each{|pid| %>
+          <tr class="group">
+            <td>
+              <p style="writing-mode: vertical-rl; white-space: nowrap;"><%= @project_names_hash[pid] %></p>
+            </td>
+            <% @status_fields_array.each {|status_id| %>
+              <td id="field-<%= status_id %>-p<%= pid %>" style="vertical-align: top;">
+                <% @issues_hash[status_id].each {|issue| %>
+                  <% if issue.project_id == pid then %>
+                    <% if @card_size == "small" then %>
                       <%= render partial: 'kanban/small_card', locals: { issue: issue } %>
-                  <% elsif @card_size == "normal_days_left" then %>
-                    <!-- NORMAL SIZE card display with days left -->
+                    <% elsif @card_size == "normal_days_left" then %>
                       <%= render partial: 'kanban/normal_card_days_left', locals: { issue: issue } %>
-                  <% elsif @card_size == "normal_estimated_hours" then %>
-                    <!-- NORMAL SIZE card display with estimated hours -->
+                    <% elsif @card_size == "normal_estimated_hours" then %>
                       <%= render partial: 'kanban/normal_card_estimated_hours', locals: { issue: issue } %>
-                  <% else %>
-                    <!-- NORMAL SIZE card display with spent hours -->
+                    <% else %>
                       <%= render partial: 'kanban/normal_card_spent_hours', locals: { issue: issue } %>
+                    <% end %>
+                  <% end %>
+                <% } %>
+              </td>
+            <% } %>
+          </tr>
+        <% } %>
+      <% else %>
+        <!-- User swimlanes (default) -->
+        <% @user_id_array.each{|uid| %>
+          <tr class="group">
+            <td>
+              <% if uid != nil then %>
+                <% if @group_id_array.include?(uid) then %>
+                  <img src="./images/group.png">
+                  <p style="writing-mode: vertical-rl; white-space: nowrap;"><%= @user_and_group_names_hash[uid] %></p>
+                <% else %>
+                  <% if Kanban::Constants::DISPLAY_USER_AVATAR == 1 then %><%= avatar(@selectable_users.find(uid), :size => "16") %>&nbsp;<% end %>
+                  <p style="writing-mode: vertical-rl; white-space: nowrap;"><%= @user_and_group_names_hash[uid] %></p>
+                <% end %>
+              <% else %>
+                <p style="writing-mode: vertical-rl; white-space: nowrap;">Not&nbsp;Assigned</p>
+              <% end %>
+            </td>
+            <% @status_fields_array.each {|status_id| %>
+              <td id="field-<%= status_id %>-<%= uid %>" style="vertical-align: top;">
+                <% if status_id == Kanban::Constants::WIP_COUNT_STATUS_FIELD %>
+                  <% if @wip_hash[uid].to_i > @wip_max.to_i then %>
+                    <div class="flash error" id="wip_error-<%= uid %>" style="margin: 8px 4px 8px 4px;"><%= I18n.t(:kanban_label_wip_limit_exceeded) %></div>
+                  <% else %>
+                    <div class="flash error" id="wip_error-<%= uid %>" style="margin: 8px 4px 8px 4px; display: none;"><%= I18n.t(:kanban_label_wip_limit_exceeded) %></div>
                   <% end %>
                 <% end %>
-              <% } %>
-            </td>
-          <% } %>
-        </tr>
-      <% } %>
+                <% @issues_hash[status_id].each {|issue| %>
+                  <% if uid == issue.assigned_to_id then %>
+                    <% if @card_size == "small" then %>
+                      <%= render partial: 'kanban/small_card', locals: { issue: issue } %>
+                    <% elsif @card_size == "normal_days_left" then %>
+                      <%= render partial: 'kanban/normal_card_days_left', locals: { issue: issue } %>
+                    <% elsif @card_size == "normal_estimated_hours" then %>
+                      <%= render partial: 'kanban/normal_card_estimated_hours', locals: { issue: issue } %>
+                    <% else %>
+                      <%= render partial: 'kanban/normal_card_spent_hours', locals: { issue: issue } %>
+                    <% end %>
+                  <% end %>
+                <% } %>
+              </td>
+            <% } %>
+          </tr>
+        <% } %>
+      <% end %>
     </tbody>
   </table>
 </div>

@@ -37,6 +37,11 @@ en:
   kanban_label_card_size_normal_spent_hours: Normal (spent hours)
 
   kanban_label_show_ancestors: Show parent task
+  kanban_label_group_by: Group by
+  kanban_label_group_by_user: Assignee
+  kanban_label_group_by_project: Project
+  kanban_label_group_order: Order
+  kanban_label_team_title: Team Kanban
 
   button_keyboard_shortcuts: Shortcuts
 
